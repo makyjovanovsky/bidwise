@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Product Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+            rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .custom-modal {
+            display: none;
+        }
+        .card {
+            margin-left: 50px;
+            margin-top: 25px;
+        }
+
+        #cart {
+            position: fixed;
+            right: 30px;
+            bottom: 30px;
+        }
+
+        .sidebar {
+            height: 100vh;
+            width: 240px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border: 1px solid rgba(0, 0, 0, 0.125);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .main-content {
+            padding: 60px;
+            height: 100vh;
+            background-color: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.125);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-item .sidebar-submenu {
+            display: none;
+            padding-left: 20px;
+        }
+
+        .sidebar-item.active .sidebar-submenu {
+            display: block;
+        }
+
+
+        a {
+            text-decoration: none;
+        }
+
+
+    </style>
+</head>
+<body>
+<div th:insert="layout/navbar.html :: navbar"></div>
+
+<br>
+
+<div class="modal custom-modal" th:if="${message != null}" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Popup Message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p th:text="${message}"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-2">
+            <div class="sidebar">
+                <div class="sidebar-item">
+                    <p>Filter by category:</p>
+                </div>
+                <div class="sidebar-item" th:each="category : ${categories}">
+                    <a class="sidebar-link" th:text="${category.name}"
+                       th:href="@{/product/category/{id} (id=${category?.id})}"></a>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-10">
+            <div class="main-content d-flex flex-column">
+                <div class="row">
+                    <div class="col-4" th:each="product : ${products.content}">
+                        <div class="card" style="width: 18rem;">
+                            <img th:src="'data:image/jpeg;base64,' + ${product.getImageBase64()}" class="card-img-top"
+                                 alt="..."
+                                 width="70px" height="200px">
+                            <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                                <h5 class="card-title" th:text="${product.name}"></h5>
+                                <p class="card-text" th:text="${product.description}"></p>
+                            </div>
+                            <ul class="list-group list-group-flush text-center">
+                                <li class="list-group-item" th:text="|Lattest bid: ${product.highestBid},00 ден.|"></li>
+                            </ul>
+                            <ul class="list-group list-group-flush text-center">
+                                <li class="countdown list-group-item" th:text="|Countdown: 0:${@dateUtils.calculateSecondsDifference(product.auction.timeOfFinish)}|"></li>
+                            </ul>
+
+                            <div class="card-body">
+                                <form method="post" action="http://localhost:8081/bid" class="form-inline d-flex justify-content-center">
+                                    <input type="text" name="productId" th:value="${product.id}" hidden/>
+                                    <input type="text" name="userId" th:value="${userId}" hidden/>
+                                    <div class="form-group">
+                                        <input class="form-control" type="number" name="price" th:min="${product.highestBid} + 1" placeholder="Enter your price"/>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Bid</button>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-auto">
+                    <div th:if="${products.totalPages > 1}" style="display: flex; justify-content: center;">
+                        <ul class="pagination">
+                            <li th:class="${products.number == 0} ? 'disabled'">
+                                <a th:href="@{/product(page=0)}" class="btn btn-sm btn-primary">&laquo;</a>
+                            </li>
+                            <li th:each="pageNumber : ${#numbers.sequence(0, products.totalPages - 1)}">
+                                <a th:href="(${id != null}) ? @{/product/category/{id}(id=${id}, page=${pageNumber})} : @{/product(page=${pageNumber})}"
+                                   th:text="${pageNumber + 1}"
+                                   th:class="${products.number == pageNumber} ? 'btn btn-sm btn-primary active' : 'btn btn-sm btn-primary'"></a>
+                            </li>
+                            <li th:class="${products.number == products.totalPages - 1} ? 'disabled'">
+                                <a th:href="@{/product(page=${products.totalPages - 1})}" class="btn btn-sm btn-primary">&raquo;</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Select all elements with the class 'countdown'
+        var countdownElements = document.querySelectorAll('.countdown');
+
+        countdownElements.forEach(function (countdownElement) {
+            var remainingSeconds = parseInt(countdownElement.textContent.split(":")[2].trim()); // Get remaining seconds from Thymeleaf expression
+
+            var countdownInterval = setInterval(function () {
+                // Update the HTML element with the countdown
+                countdownElement.textContent = formatTime(remainingSeconds);
+
+                // If the countdown is over, stop updating
+                if (remainingSeconds <= 0) {
+                    clearInterval(countdownInterval);
+                    countdownElement.textContent = 'Auction has ended';
+                } else {
+                    remainingSeconds--;
+                }
+            }, 1000); // Update every second
+
+            // Function to format remaining time as mm:ss
+            function formatTime(seconds) {
+                var displayMinutes = Math.floor(seconds / 60);
+                var displaySeconds = seconds % 60;
+                return 'Countdown: ' + displayMinutes + ':' + (displaySeconds < 10 ? '0' : '') + displaySeconds;
+            }
+        });
+    });
+</script>
+
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log("CALLED")
+        var message = [[${message}]] || '';
+
+        if (message.trim() !== "") {
+            // Show the modal
+            var modal = new bootstrap.Modal(document.querySelector('.custom-modal'));
+            modal.show();
+        }
+    });
+</script>
+
+
+</body>
+</html>
