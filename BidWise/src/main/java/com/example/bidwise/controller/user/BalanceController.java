@@ -20,7 +20,6 @@ public class BalanceController {
 
     @PostMapping("/addBalance")
     public String addBalance(@RequestParam(name = "balance") int balance) {
-        System.out.println(balance);
         userService.addBalance(balance);
         return "payment/payment_successful";
     }

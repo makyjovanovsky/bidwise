@@ -36,6 +36,8 @@ public class BidServiceImpl implements BidService {
         }
 
         BidMessage response = objectMapper.readValue(responseMessage.getBody(), BidMessage.class);
+
+        rabbitAdmin.deleteQueue(responseQueueName);
         return response.getResponse();
     }
 

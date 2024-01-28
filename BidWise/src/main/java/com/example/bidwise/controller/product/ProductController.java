@@ -17,12 +17,14 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProductController extends BaseController {
 
     private final ProductService productService;
+    private final UserService userService;
     private final CategoryService categoryService;
     private final UserAuthenticationService userAuthenticationService;
 
-    public ProductController(UserService userService, ProductService productService, CategoryService categoryService, UserAuthenticationService userAuthenticationService) {
+    public ProductController(UserService userService, ProductService productService, UserService userService1, CategoryService categoryService, UserAuthenticationService userAuthenticationService) {
         super(userService);
         this.productService = productService;
+        this.userService = userService1;
         this.categoryService = categoryService;
         this.userAuthenticationService = userAuthenticationService;
     }
@@ -63,6 +65,13 @@ public class ProductController extends BaseController {
                              @RequestParam(name = "category") Long categoryId) throws Exception {
         productService.addProduct(name, description, price, multipartFile.getBytes(), categoryId);
         return "redirect:/product";
+    }
+
+    @GetMapping("/history")
+    public String getUserProducts(Model model) {
+        model.addAttribute("productsOwner", userService.findAllByUserOwner());
+        model.addAttribute("productsWinner", userService.findAllByUserWinner());
+        return "user/list_product";
     }
 
 

@@ -34,6 +34,7 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findAllByFinishedAuction(false);
     }
 
+
     @Override
     public Page<ProductEntity> findAllPagination(int page, int pageSize) {
         Pageable pageable = PageRequest.of(page, pageSize);
@@ -58,7 +59,6 @@ public class ProductServiceImpl implements ProductService {
         ProductEntity product = new ProductEntity(name, description, price, image, category);
         product.setHighestBid(price);
         product.setUserOwner(userAuthenticationService.getLoggedInUser());
-        productRepository.save(product);
         auctionService.addAuction(product, LocalDateTime.now(), LocalDateTime.now().plusMinutes(1));
         queueComponent.setQueueName("q.product" + product.getId());
         bidConsumerRegistrar.createBidConsumer();

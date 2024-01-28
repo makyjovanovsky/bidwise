@@ -23,7 +23,8 @@ public class AuctionEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @OneToOne(mappedBy = "auction")
+    @PrimaryKeyJoinColumn
     private ProductEntity product;
 
     private LocalDateTime timeOfStart;
@@ -36,8 +37,7 @@ public class AuctionEntity {
     @OneToMany(fetch = FetchType.EAGER)
     private List<BidEntity> bids;
 
-    public AuctionEntity(ProductEntity product, LocalDateTime timeOfStart, LocalDateTime timeOfFinish) {
-        this.product = product;
+    public AuctionEntity(LocalDateTime timeOfStart, LocalDateTime timeOfFinish) {
         this.timeOfStart = timeOfStart;
         this.timeOfFinish = timeOfFinish;
     }

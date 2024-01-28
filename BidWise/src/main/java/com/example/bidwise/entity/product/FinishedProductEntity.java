@@ -8,15 +8,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Base64;
 
 @Entity
-@Table(name = "product")
+@Table(name = "finished_product")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class ProductEntity {
+public class FinishedProductEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,32 +38,14 @@ public class ProductEntity {
     private CategoryEntity category;
 
     @OneToOne
-    @JoinColumn(name = "auction_id")
     private AuctionEntity auction;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
     private UserEntity userOwner;
 
     private int highestBid;
 
-    private boolean finishedAuction = false;
-
-
-    public ProductEntity(String name, String description, int price, byte[] image, CategoryEntity category) {
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.image = image;
-        this.category = category;
-    }
-
-    public String getImageBase64() {
-        if (image == null) {
-            return null;
-        }
-        return Base64.getEncoder().encodeToString(image);
-    }
+    private boolean finishedAuction;
 
 
 }

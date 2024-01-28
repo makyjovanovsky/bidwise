@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalTime;
+
 @Component
 @AllArgsConstructor
 public class DataInitializr {
@@ -17,6 +19,9 @@ public class DataInitializr {
 
     @PostConstruct
     public void initializeData() {
+
+        System.out.println(LocalTime.now());
+
         if (userRepository.findByUsername("admin").isEmpty()) {
             userRepository.save(new UserEntity("Mladen", "Jovanovski", "admin", passwordEncoder.encode("admin"), UserRole.ADMIN));
         }

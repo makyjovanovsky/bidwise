@@ -28,7 +28,7 @@ public class AuctionServiceImpl implements AuctionService {
 
     @Override
     public void addAuction(ProductEntity product, LocalDateTime timeOfStart, LocalDateTime timeOfFinish) {
-        AuctionEntity auction = new AuctionEntity(product, timeOfStart, timeOfFinish);
+        AuctionEntity auction = new AuctionEntity(timeOfStart, timeOfFinish);
         auctionRepository.save(auction);
         product.setAuction(auction);
         productRepository.save(product);
